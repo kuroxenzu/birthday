@@ -69,7 +69,8 @@ window.CARD_CONTENT = {
   // player below lists whatever's in this array. Missing files are
   // skipped quietly, so you can leave placeholders in here.
   musicTracks: [
-    { title: "Home",  src: "music/home.mp3" }
+    { title: "Home - Toby Fox",  src: "music/home.mp3" },
+    { title: "Undertale - Toby Fox",  src: "music/undertale.mp3" }
   ]
 
 };
