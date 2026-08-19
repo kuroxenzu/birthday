@@ -7,13 +7,13 @@ window.CARD_CONTENT = {
 
   // The "old photo" shown in the first sequence.
   // Drop your own image in /images and point this at it, e.g. "images/old-photo.jpg"
-  oldPhotoSrc: "images/placeholder-photo.svg",
+  oldPhotoSrc: "images/old-photo.png",
   oldPhotoCaption: "( a photo from before. )",
 
   // The second "now" photo shown next to the old photo, once the
   // reader clicks/presses through to the second intro line.
   // Drop your own image in /images and point this at it too, e.g. "images/new-photo.jpg"
-  newPhotoSrc: "images/placeholder-photo.svg",
+  newPhotoSrc: "images/new-photo.png",
   newPhotoCaption: "( and now. )",
 
   // The two lines that open the card, shown one at a time.
