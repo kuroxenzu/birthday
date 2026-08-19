@@ -69,7 +69,7 @@ window.CARD_CONTENT = {
   // player below lists whatever's in this array. Missing files are
   // skipped quietly, so you can leave placeholders in here.
   musicTracks: [
-    { title: "Once Upon a Time",  src: "music/home.mp3" }
+    { title: "Home",  src: "music/home.mp3" }
   ]
 
 };
