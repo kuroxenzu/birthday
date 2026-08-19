@@ -279,7 +279,23 @@ input{ font-family: inherit; }
   animation: pulse 1.6s ease-in-out infinite;
 }
 
-.main-box{ cursor: pointer; }
+.main-box{
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.main-box:active,
+.main-box:focus,
+.main-box:focus-visible{
+  background: var(--box-bg);
+  color: var(--bone);
+  outline: none;
+  box-shadow: none;
+}
 
 .advance-hint{
   margin-top: 0.8rem;
@@ -566,6 +582,23 @@ input{ font-family: inherit; }
   .music-toggle{ width: 2.75rem; height: 2.75rem; }
   .music-panel{ width: min(78vw, 280px); padding: 0.7rem 0.8rem; }
   .music-controls{ gap: 0.8rem; }
+
+   .main-box{
+     background: var(--box-bg) !important;
+     -webkit-tap-highlight-color: transparent !important;
+     -webkit-touch-callout: none;
+     user-select: none;
+     -webkit-user-select: none;
+     touch-action: manipulation;
+   }
+   
+   .main-box:active{
+     background: var(--box-bg) !important;
+     color: var(--bone) !important;
+     border-color: var(--bone) !important;
+     outline: none !important;
+     box-shadow: none !important;
+   }
 }
 
 @media (max-width: 380px){
