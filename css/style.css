@@ -590,3 +590,14 @@ input{ font-family: inherit; }
   .title{ margin-bottom: 0.8rem; }
   .save-point{ margin-top: 1rem; }
 }
+/* ===================================================================
+   HIGHLIGHT: DISABLED (GLOBAL)
+   =================================================================== */
+.dialogue-box,
+.ut-button,
+.star,
+.music-toggle,
+.music-controls button,
+.text-button {
+  -webkit-tap-highlight-color: transparent;
+}
