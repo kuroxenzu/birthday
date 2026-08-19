@@ -1,0 +1,523 @@
+/* ===================================================================
+   TOKENS
+   =================================================================== */
+:root{
+  --bg:            #030303;
+  --box-bg:        #0a0a0a;
+  --bone:          #f5f0e6;
+  --soul-red:      #ff2b2b;
+  --soul-red-dim:  #a11616;
+  --gold:          #ffd23f;
+  --lavender:      #b48ce0;
+  --cyan:          #4fd6d6;
+
+  --font-display:  'Silkscreen', monospace;
+  --font-body:     'VT323', monospace;
+
+  --border-w:      3px;
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--bone);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body{
+  min-height: 100vh;
+  position: relative;
+}
+
+button{ font-family: inherit; cursor: pointer; }
+input{ font-family: inherit; }
+
+/* Several elements below (.ut-button, .save-point, .overlay) set their
+   own `display` value unconditionally. Because that rule has the same
+   specificity as the browser's built-in `[hidden]{ display:none }`
+   rule, author CSS wins the tie and the `hidden` attribute gets
+   silently ignored — the element stays visible even while JS has
+   `el.hidden = true`. This rule outranks all of them so `hidden`
+   always actually hides things, everywhere on the page. */
+[hidden]{ display: none !important; }
+
+/* Used by elements that must stay in the layout flow at all times
+   (e.g. #btnStart, #savePoint) so the space around them is reserved
+   from the very start — revealing them later just fades them in
+   instead of resizing/recentering everything else on the screen. */
+.pending{
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+::selection{ background: var(--soul-red); color: var(--bone); }
+
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===================================================================
+   SCREENS / LAYOUT
+   =================================================================== */
+.screen{
+  display: none;
+  min-height: 100vh;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6vh 5vw 8vh;
+  position: relative;
+  text-align: center;
+}
+.screen.active{ display: flex; }
+
+/* ===================================================================
+   BOOT SCREEN
+   =================================================================== */
+.boot-heart{
+  font-size: 2.4rem;
+  color: var(--lavender);
+  animation: pulse 1.6s ease-in-out infinite;
+  margin-bottom: 1.5rem;
+}
+@keyframes pulse{
+  0%, 100%{ transform: scale(1); opacity: 1; }
+  50%{ transform: scale(1.18); opacity: 0.75; }
+}
+.boot-text{
+  font-size: 1.4rem;
+  color: var(--bone);
+  opacity: 0.8;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.02em;
+}
+.boot-hint{
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  opacity: 0.45;
+}
+
+/* ===================================================================
+   UT BUTTON (retro confirm button w/ heart cursor)
+   =================================================================== */
+.ut-button{
+  background: var(--bg);
+  color: var(--bone);
+  border: var(--border-w) solid var(--bone);
+  padding: 0.7rem 1.8rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: background 0.15s, color 0.15s, transform 0.1s, opacity 0.4s ease;
+}
+.ut-button .cursor{
+  color: var(--lavender);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.ut-button:hover, .ut-button:focus-visible{
+  background: var(--bone);
+  color: var(--bg);
+}
+.ut-button:hover .cursor, .ut-button:focus-visible .cursor{
+  opacity: 1;
+  transform: translateX(0);
+}
+.ut-button:active{ transform: scale(0.96); }
+.ut-button.small{ font-size: 0.85rem; padding: 0.5rem 1.2rem; }
+.ut-button:focus-visible{ outline: 2px dashed var(--gold); outline-offset: 4px; }
+
+.text-button{
+  background: none;
+  border: none;
+  color: var(--bone);
+  opacity: 0.5;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  text-decoration: underline;
+  margin-top: 0.8rem;
+}
+.text-button:hover{ opacity: 0.9; }
+
+/* ===================================================================
+   INTRO SEQUENCE
+   =================================================================== */
+.intro-wrap{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 780px;
+}
+
+.intro-visuals{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.polaroid{
+  background: var(--bone);
+  padding: 10px 10px 34px;
+  width: 220px;
+  margin: 0;
+  transform: rotate(-3deg);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.polaroid.visible{ opacity: 1; }
+
+.old-photo{ transform: rotate(-4deg); }
+.old-photo.visible{ transform: rotate(-4deg); }
+
+.new-photo{ transform: rotate(3deg); transition-delay: 0.3s; }
+.new-photo.visible{ transform: rotate(3deg); }
+
+.polaroid img{
+  width: 100%;
+  aspect-ratio: 5 / 6;
+  object-fit: cover;
+  display: block;
+  filter: sepia(0.35) contrast(1.05);
+}
+
+.polaroid figcaption{
+  font-family: var(--font-body);
+  color: #1a1a1a;
+  font-size: 1rem;
+  text-align: center;
+  padding-top: 8px;
+}
+
+/* ===================================================================
+   DIALOGUE BOX (shared: intro / main / secret)
+   =================================================================== */
+.dialogue-box{
+  width: 100%;
+  max-width: 700px;
+  height: 190px;
+  background: var(--box-bg);
+  border: var(--border-w) solid var(--bone);
+  padding: 1.4rem 1.8rem;
+  position: relative;
+  text-align: left;
+  overflow-y: auto;
+}
+.dialogue-text{
+  font-size: 1.5rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* Highlighted keywords within dialogue text — see HIGHLIGHT_WORDS
+   in script.js to add/remove which words get colored. */
+.hl-word{ font-weight: bold; }
+.hl-fight{ color: var(--soul-red); }
+.hl-act{ color: var(--cyan); }
+.hl-mercy{ color: var(--gold); }
+.hl-item{ color: var(--bone); text-decoration: underline; }
+.hl-greeting{ color: var(--soul-red); }
+.hl-perseverant{ color: var(--lavender); }
+.hl-savepoint{ color: yellow; }
+
+.advance-indicator{
+  position: absolute;
+  right: 1.4rem;
+  bottom: 0.9rem;
+  color: var(--bone);
+  animation: bob 1s ease-in-out infinite;
+}
+@keyframes bob{
+  0%, 100%{ transform: translateY(0); }
+  50%{ transform: translateY(5px); }
+}
+
+/* ===================================================================
+   MAIN SCREEN
+   =================================================================== */
+.title{
+  font-family: var(--font-display);
+  margin: 0 0 2.2rem;
+  line-height: 1.5;
+}
+.title-line1{
+  display: block;
+  font-size: 1.1rem;
+  letter-spacing: 0.3em;
+  color: var(--bone);
+  opacity: 0.7;
+}
+.title-line2{
+  display: block;
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  color: var(--lavender);
+  letter-spacing: 0.04em;
+}
+.title-heart{
+  display: inline-block;
+  margin-left: 0.4rem;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.main-box{ cursor: pointer; }
+
+.advance-hint{
+  margin-top: 0.8rem;
+  font-size: 1rem;
+  opacity: 0.4;
+  max-width: 700px;
+}
+
+.save-point{
+  margin-top: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  opacity: 1;
+}
+
+.save-point.pending{
+  opacity: 0;
+  pointer-events: none;
+}
+
+.save-point:not(.pending){
+  animation: savePointFadeIn 3s ease forwards;
+}
+
+@keyframes savePointFadeIn{
+  from{
+    opacity: 0;
+  }
+  to{
+    opacity: 1;
+  }
+}.save-point{
+  margin-top: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  opacity: 1;
+}
+
+.save-point.pending{
+  opacity: 0;
+  pointer-events: none;
+}
+
+.save-point:not(.pending){
+  animation: savePointFadeIn 3s ease forwards;
+}
+
+@keyframes savePointFadeIn{
+  from{
+    opacity: 0;
+  }
+  to{
+    opacity: 1;
+  }
+}
+
+.star{
+  font-size: 2.6rem;
+  color: var(--gold);
+  animation: spin-glow 3s linear infinite;
+  cursor: pointer;
+}
+.star:focus-visible{ outline: 2px dashed var(--gold); outline-offset: 6px; }
+@keyframes spin-glow{
+  0%{ transform: rotate(0deg) scale(1); text-shadow: 0 0 8px var(--gold); }
+  50%{ transform: rotate(180deg) scale(1.15); text-shadow: 0 0 18px var(--gold); }
+  100%{ transform: rotate(360deg) scale(1); text-shadow: 0 0 8px var(--gold); }
+}
+.save-point-text{
+  font-size: 1.1rem;
+  opacity: 0.7;
+  text-align: center;
+  margin: 0;
+}
+
+/* ===================================================================
+   SECRET WORD OVERLAY
+   =================================================================== */
+.overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1.5rem;
+}
+.word-box{
+  width: 100%;
+  max-width: 420px;
+  background: var(--box-bg);
+  border: var(--border-w) solid var(--bone);
+  padding: 1.6rem;
+  text-align: center;
+}
+.word-box .dialogue-text{ font-size: 1.3rem; text-align: center; }
+#wordForm{
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+#wordInput{
+  flex: 1;
+  background: var(--bg);
+  border: 2px solid var(--bone);
+  color: var(--bone);
+  font-size: 1.2rem;
+  padding: 0.5rem 0.7rem;
+}
+#wordInput:focus-visible{ outline: 2px dashed var(--gold); }
+.word-feedback{
+  min-height: 1.6rem;
+  margin-top: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--soul-red);
+}
+.word-feedback.correct{ color: var(--cyan); }
+
+.shake{ animation: shake 0.4s ease; }
+@keyframes shake{
+  0%, 100%{ transform: translateX(0); }
+  20%{ transform: translateX(-8px); }
+  40%{ transform: translateX(8px); }
+  60%{ transform: translateX(-6px); }
+  80%{ transform: translateX(6px); }
+}
+
+/* ===================================================================
+   SECRET SCREEN
+   =================================================================== */
+.secret-screen{ background: var(--bg); gap: 2rem; }
+.secret-box{ border-color: var(--lavender); box-shadow: 0 0 30px rgba(180,140,224,0.25); }
+.secret-screen .advance-indicator{ color: var(--lavender); }
+
+/* ===================================================================
+   TRANSITION WIPE
+   =================================================================== */
+.wipe{
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.wipe.active{ opacity: 1; pointer-events: all; }
+
+/* ===================================================================
+   AMBIENT BACKGROUND DECOR
+   =================================================================== */
+.bg-decor{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.bg-decor span{
+  position: absolute;
+  bottom: -10%;
+  color: var(--lavender);
+  opacity: 0.5;
+  font-size: 1rem;
+  animation: float-up linear infinite;
+}
+@keyframes float-up{
+  from{ transform: translateY(0) rotate(0deg); }
+  to{ transform: translateY(-110vh) rotate(20deg); }
+}
+
+.screen, .overlay{ position: relative; z-index: 1; }
+
+/* ===================================================================
+   MUSIC PLAYER
+   =================================================================== */
+.music-player{
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1.2rem;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+.music-toggle{
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--box-bg);
+  border: 2px solid var(--bone);
+  color: var(--bone);
+  font-size: 1.3rem;
+}
+.music-toggle:hover{ background: var(--bone); color: var(--bg); }
+.music-toggle:focus-visible{ outline: 2px dashed var(--gold); }
+
+.music-panel{
+  background: var(--box-bg);
+  border: 2px solid var(--bone);
+  padding: 0.8rem 1rem;
+  width: 220px;
+  font-size: 0.95rem;
+}
+.music-track-name{
+  margin: 0 0 0.6rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.music-controls{
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+.music-controls button{
+  background: none;
+  border: none;
+  color: var(--bone);
+  font-size: 1.2rem;
+}
+.music-controls button:hover{ color: var(--gold); }
+#volumeSlider{ width: 100%; accent-color: var(--soul-red); }
+
+/* ===================================================================
+   RESPONSIVE
+   =================================================================== */
+@media (max-width: 600px){
+  .polaroid{ width: 42vw; min-width: 150px; }
+  .dialogue-box{ height: 220px; }
+  .dialogue-text{ font-size: 1.25rem; }
+  .title-line2{ font-size: clamp(1.5rem, 8vw, 2.2rem); }
+  .music-panel{ width: 62vw; }
+}

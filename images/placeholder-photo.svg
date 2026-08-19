@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" width="400" height="480">
+  <defs>
+    <linearGradient id="sepiaBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8d2a6"/>
+      <stop offset="100%" stop-color="#c9a870"/>
+    </linearGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"/>
+      <feColorMatrix in="noise" type="matrix"
+        values="0 0 0 0 0.3
+                0 0 0 0 0.25
+                0 0 0 0 0.15
+                0 0 0 0.06 0"/>
+    </filter>
+  </defs>
+
+  <!-- polaroid frame -->
+  <rect x="0" y="0" width="400" height="480" fill="#f4ecda"/>
+  <rect x="16" y="16" width="368" height="368" fill="url(#sepiaBg)"/>
+
+  <!-- simple silhouette figure -->
+  <circle cx="200" cy="150" r="62" fill="#7a5c3a" opacity="0.55"/>
+  <path d="M 90 340 Q 200 210 310 340 L 310 384 L 90 384 Z" fill="#7a5c3a" opacity="0.55"/>
+
+  <!-- grain overlay -->
+  <rect x="16" y="16" width="368" height="368" filter="url(#grain)" opacity="0.5"/>
+
+  <!-- corner tape marks -->
+  <rect x="4" y="4" width="46" height="20" fill="#fff" opacity="0.55" transform="rotate(-8 27 14)"/>
+  <rect x="350" y="4" width="46" height="20" fill="#fff" opacity="0.55" transform="rotate(8 373 14)"/>
+
+  <!-- caption -->
+  <text x="200" y="430" font-family="monospace" font-size="18" fill="#5c4a30" text-anchor="middle">sample photo</text>
+  <text x="200" y="454" font-family="monospace" font-size="13" fill="#8a7550" text-anchor="middle">( replace me in /images )</text>
+</svg>

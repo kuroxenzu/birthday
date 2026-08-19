@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>* it's you.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ambient floating hearts / stars, purely decorative -->
+<div class="bg-decor" aria-hidden="true" id="bgDecor"></div>
+
+<!-- ============ SCREEN 0 — BOOT ============ -->
+<section id="screen-boot" class="screen active" aria-label="Start screen">
+  <div class="boot-heart" aria-hidden="true">❤</div>
+  <p class="boot-text">* (A quiet weight settles over the room.)</p>
+  <button id="btnBoot" class="ut-button">
+    <span class="cursor" aria-hidden="true">❤</span> BEGIN
+  </button>
+  <p class="boot-hint">click to continue</p>
+</section>
+
+<!-- ============ SCREEN 1 — INTRO SEQUENCE ============ -->
+<section id="screen-intro" class="screen" aria-label="Introduction">
+  <div class="intro-wrap">
+
+    <div class="intro-visuals">
+      <figure class="polaroid old-photo">
+        <img id="oldPhoto" alt="An old photo">
+        <figcaption id="oldPhotoCaption"></figcaption>
+      </figure>
+
+      <figure class="polaroid new-photo">
+        <img id="newPhoto" alt="A newer photo">
+        <figcaption id="newPhotoCaption"></figcaption>
+      </figure>
+    </div>
+
+    <div class="dialogue-box" id="introBox">
+      <p class="dialogue-text" id="introText" aria-live="polite"></p>
+      <span class="advance-indicator" id="introAdvance" hidden>▼</span>
+    </div>
+
+    <button id="btnStart" class="ut-button pending">
+      <span class="cursor" aria-hidden="true">❤</span> START
+    </button>
+  </div>
+</section>
+
+<!-- ============ SCREEN 2 — MAIN CONTENT ============ -->
+<section id="screen-main" class="screen" aria-label="Birthday message">
+  <h1 class="title">
+    <span class="title-line1">HAPPY</span>
+    <span class="title-line2">BIRTHDAY<span class="title-heart">❤</span></span>
+  </h1>
+
+  <div class="dialogue-box main-box" id="mainBox">
+    <p class="dialogue-text" id="mainText" aria-live="polite"></p>
+    <span class="advance-indicator" id="mainAdvance">▼</span>
+  </div>
+  <p class="advance-hint">click the box, or press Z / Enter / Space</p>
+
+  <div class="save-point pending" id="savePoint">
+    <div class="star" id="savePointStar" tabindex="0" role="button" aria-label="Open a secret entry">✦</div>
+    <p class="save-point-text">* A strange star hovers here.<br>( touch it? )</p>
+  </div>
+</section>
+
+<!-- ============ SECRET WORD PROMPT ============ -->
+<div id="wordPrompt" class="overlay" hidden>
+  <div class="word-box">
+    <p class="dialogue-text">* Speak the magic word.</p>
+    <form id="wordForm" autocomplete="off">
+      <input id="wordInput" type="text" maxlength="40" placeholder="..." aria-label="Magic word">
+      <button type="submit" class="ut-button small">
+        <span class="cursor" aria-hidden="true">❤</span> ENTER
+      </button>
+    </form>
+    <p class="word-feedback" id="wordFeedback" aria-live="polite"></p>
+    <button class="text-button" id="btnCloseWord">nevermind</button>
+  </div>
+</div>
+
+<!-- ============ SCREEN 3 — SECRET ============ -->
+<section id="screen-secret" class="screen secret-screen" aria-label="Secret message" hidden>
+  <div class="dialogue-box secret-box" id="secretBox">
+    <p class="dialogue-text" id="secretText" aria-live="polite"></p>
+    <span class="advance-indicator" id="secretAdvance">▼</span>
+  </div>
+  <button id="btnCloseSecret" class="ut-button small pending">
+    <span class="cursor" aria-hidden="true">❤</span> CLOSE
+  </button>
+</section>
+
+<!-- ============ TRANSITION WIPE ============ -->
+<div id="wipe" class="wipe" aria-hidden="true"></div>
+
+<!-- ============ MUSIC PLAYER ============ -->
+<div class="music-player" id="musicPlayer">
+  <button id="btnMusicToggle" class="music-toggle" aria-label="Play or pause music">♪</button>
+  <div class="music-panel" id="musicPanel" hidden>
+    <p class="music-track-name" id="musicTrackName">no track loaded</p>
+    <div class="music-controls">
+      <button id="btnPrevTrack" aria-label="Previous track">«</button>
+      <button id="btnPlayPause" aria-label="Play or pause">▶</button>
+      <button id="btnNextTrack" aria-label="Next track">»</button>
+    </div>
+    <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Volume">
+  </div>
+</div>
+<audio id="bgm" loop></audio>
+
+<script src="js/content.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>
