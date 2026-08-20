@@ -47,12 +47,56 @@
       .replace(/>/g, "&gt;");
   }
 
-  /** Escapes text and wraps any highlight keywords in colored spans. */
-  function renderHighlighted(text) {
-    return escapeHtml(text).replace(HIGHLIGHT_RE, (match) => {
-      const cls = HIGHLIGHT_CLASS_BY_WORD[match];
-      return `<span class="hl-word ${cls}">${match}</span>`;
-    });
+  /**
+   * Finds every highlight-keyword match in `text`, returning their
+   * start/end character indices (into `text`) plus the CSS class to
+   * apply. Computed once per line against the FULL, final text so the
+   * indices stay valid no matter how much of the line has been typed
+   * so far — that's what lets the typewriter color a keyword in as it
+   * types it, instead of only after the whole word lands.
+   */
+  function findHighlightMatches(text) {
+    const matches = [];
+    HIGHLIGHT_RE.lastIndex = 0;
+    let m;
+    while ((m = HIGHLIGHT_RE.exec(text)) !== null) {
+      matches.push({
+        start: m.index,
+        end: m.index + m[0].length,
+        cls: HIGHLIGHT_CLASS_BY_WORD[m[0]],
+      });
+    }
+    return matches;
+  }
+
+  /**
+   * Escapes `text` and wraps highlight keywords in colored spans.
+   * `matches`, if provided, should come from findHighlightMatches()
+   * run against the FULL line — `text` here may be just a prefix of
+   * that full line (mid-typewriter). Any match that `text` currently
+   * cuts through gets wrapped up to wherever it's been typed to, so
+   * the keyword is colored from its very first character rather than
+   * only once it's complete. When `matches` is omitted, it's computed
+   * fresh against `text` itself (the old, whole-word-only behavior —
+   * still fine for text that's already fully rendered).
+   */
+  function renderHighlighted(text, matches) {
+    if (!matches) matches = findHighlightMatches(text);
+
+    let html = "";
+    let last = 0;
+
+    for (const m of matches) {
+      if (m.start >= text.length) break; // keyword not reached yet
+      html += escapeHtml(text.slice(last, m.start));
+      const end = Math.min(m.end, text.length);
+      html += `<span class="hl-word ${m.cls}">${escapeHtml(text.slice(m.start, end))}</span>`;
+      last = end;
+      if (end < m.end) break; // line ends mid-keyword; nothing more to add
+    }
+
+    html += escapeHtml(text.slice(last));
+    return html;
   }
 
   /**
@@ -69,13 +113,19 @@
     let timeoutId = null;
     let resolvePromise = null;
 
+    // Computed once, against the FULL line, so every tick below can
+    // reuse the same start/end indices — that's what lets a keyword
+    // light up progressively as it's typed instead of only once the
+    // whole word has landed.
+    const matches = findHighlightMatches(text);
+
     const promise = new Promise((resolve) => {
       resolvePromise = resolve;
 
       el.innerHTML = "";
 
       if (reduceMotion) {
-        el.innerHTML = renderHighlighted(text);
+        el.innerHTML = renderHighlighted(text, matches);
         resolve();
         return;
       }
@@ -90,7 +140,7 @@
 
         if (i < text.length) {
           i++;
-          el.innerHTML = renderHighlighted(text.slice(0, i));
+          el.innerHTML = renderHighlighted(text.slice(0, i), matches);
           timeoutId = setTimeout(tick, speed);
         } else {
           resolve();
