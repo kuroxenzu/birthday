@@ -302,21 +302,11 @@
     });
 
     if (tracks.length) {
+      // Just preload the first track — playback only begins once the
+      // reader clicks BEGIN (see startForBoot(), invoked from the boot
+      // button handler below). No autoplay-on-load, no starting on any
+      // arbitrary click/key/touch elsewhere on the page.
       load(0, false);
-
-      // Try to autoplay the instant the page loads. Most browsers block
-      // audio with sound until the visitor has interacted with the page,
-      // so if this fails, fall back to starting on the very first click,
-      // tap, or key press anywhere — not just the BEGIN button.
-      const tryAutoplay = () => bgm.play().catch(() => {});
-      tryAutoplay();
-
-      const startOnFirstInteraction = () => {
-        if (bgm.paused) bgm.play().catch(() => {});
-      };
-      ["click", "keydown", "touchstart"].forEach((evt) =>
-        document.addEventListener(evt, startOnFirstInteraction, { once: true })
-      );
     } else {
       nameEl.textContent = "add mp3s to /music";
     }
