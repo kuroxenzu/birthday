@@ -294,6 +294,13 @@
     bgm.addEventListener("play", () => (playPauseBtn.textContent = "⏸"));
     bgm.addEventListener("pause", () => (playPauseBtn.textContent = "▶"));
 
+    // When a track finishes naturally, move on to the next one
+    // (wrapping back to the first after the last), autoplaying it.
+    bgm.addEventListener("ended", () => {
+      if (tracks.length > 1) load(i + 1, true);
+      else bgm.play().catch(() => {}); // only one track — just replay it
+    });
+
     prevBtn.addEventListener("click", () => load(i - 1, !bgm.paused || bgm.currentTime === 0));
     nextBtn.addEventListener("click", () => load(i + 1, !bgm.paused || bgm.currentTime === 0));
 
