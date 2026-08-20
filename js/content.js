@@ -36,7 +36,7 @@ window.CARD_CONTENT = {
 
     "* So I'll just use MERCY, and tell you plainly: happy birthday.",
 
-    "You've made this timeline so much better than the ones without you in it.",
+    "* You've made this timeline so much better than the ones without you in it.",
 
     "* Somewhere out there is a version of this year where nobody ever said any of this to you.",
 
