@@ -17,22 +17,51 @@
   -------------------------------------------------------- */
   const HIGHLIGHT_WORDS = [
     { word: "FIGHT",        className: "hl-fight" },
+    { word: "determination",        className: "hl-fight" },
     { word: "ACT",          className: "hl-act" },
     { word: "MERCY",        className: "hl-mercy" },
     { word: "ITEM",         className: "hl-item" },
     { word: "happy birthday",className: "hl-greeting" },
     { word: "perseverant",  className: "hl-perseverant" },
     { word: "save point",  className: "hl-savepoint" },
+    { word: "Ancient Soul of Perseverance",  className: "hl-perseverant" },
+    { word: "Ancient Soul of Perseverance",  className: "hl-perseverant" },
+    { word: "Perseverance",  className: "hl-perseverant" },
+    { word: "Soul of Perseverance",  className: "hl-perseverant" },
+    { word: "Ancient Soul of Perseverance",  className: "hl-perseverant" },
+    { word: "Soul",  className: "hl-perseverant" },
+    { word: "You feel a strange warmth in your chest.",  className: "hl-notif" },
+    { word: "It feels familiar.",  className: "hl-notif" },
+    { word: "It feels like perseverance.",  className: "hl-notif" },
+    { word: "there's no one here...",  className: "hl-notif" },
   ];
+  function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
   // Longest word first so e.g. "determination" matches before "determined"
   // can't accidentally clip it, and to keep the regex deterministic.
+  //
+  // Each alternative gets its OWN \b boundaries, applied only on the side(s)
+  // that actually start/end on a word character. A shared "\b(...)\b"
+  // wrapped around the whole alternation looks tempting, but it silently
+  // breaks any entry that starts or ends with punctuation (e.g. a phrase
+  // ending in "."): \b only matches between a word char and a non-word
+  // char, and a trailing "." is itself a non-word char, so "\b" right
+  // after it can never match — the whole alternative then never lights up.
+  // Per-word boundaries (plus escaping regex metacharacters like the "."
+  // in these strings) fixes both issues.
   const HIGHLIGHT_RE = new RegExp(
-    "\\b(" +
-      HIGHLIGHT_WORDS
-        .map((w) => w.word)
-        .sort((a, b) => b.length - a.length)
-        .join("|") +
-      ")\\b",
+    HIGHLIGHT_WORDS
+      .map((w) => w.word)
+      .sort((a, b) => b.length - a.length)
+      .map((word) => {
+        const escaped = escapeRegExp(word);
+        const prefix = /^\w/.test(word) ? "\\b" : "";
+        const suffix = /\w$/.test(word) ? "\\b" : "";
+        return prefix + escaped + suffix;
+      })
+      .join("|"),
     "g"
   );
   const HIGHLIGHT_CLASS_BY_WORD = HIGHLIGHT_WORDS.reduce((map, w) => {
@@ -582,6 +611,34 @@
   /* ------------------------------------------------------------
      Secret word prompt + secret dialogue
   ------------------------------------------------------------ */
+  // Whether the secret has already been unlocked once this visit.
+  // Persisted to localStorage (when available) so a reload/return
+  // visit still remembers it; falls back to an in-memory flag only
+  // (i.e. resets on reload) if storage isn't accessible.
+  const SECRET_SEEN_KEY = "hl-secret-seen";
+  let secretSeen = false;
+  try {
+    // Testing helper: open the page with ?resetSecret=1 to force this
+    // visit to count as the "first time" again, without having to dig
+    // into devtools to clear localStorage by hand. Safe to leave in —
+    // the real recipient's link just won't have that query param.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("resetSecret") === "1") {
+      window.localStorage.removeItem(SECRET_SEEN_KEY);
+    }
+    secretSeen = window.localStorage.getItem(SECRET_SEEN_KEY) === "1";
+  } catch (err) {
+    /* localStorage unavailable (e.g. file:// in some browsers) — ignore */
+  }
+  function markSecretSeen() {
+    secretSeen = true;
+    try {
+      window.localStorage.setItem(SECRET_SEEN_KEY, "1");
+    } catch (err) {
+      /* ignore */
+    }
+  }
+
   function setupSecretWordFlow() {
     const star = $("#savePointStar");
     const prompt = $("#wordPrompt");
@@ -593,7 +650,7 @@
 
     function openPrompt() {
       prompt.hidden = false;
-      feedback.textContent = "";
+      feedback.innerHTML = "";
       feedback.classList.remove("correct");
       input.value = "";
       input.focus();
@@ -613,6 +670,7 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const guess = input.value.trim().toLowerCase();
       const answer = (CONTENT.magicWord || "").trim().toLowerCase();
 
@@ -625,7 +683,9 @@
           document.getElementById("screen-secret").hidden = false;
           showScreen("screen-secret");
         });
-        startSecretPager();
+        // First visit gets the full secret message; every visit after
+        // that just finds the one-line "no one's home" line instead.
+        startSecretPager(secretSeen ? SECRET_REVISIT_PAGES : null);
       } else {
         feedback.classList.remove("correct");
         feedback.textContent = CONTENT.wrongWordLine || "* ... nothing happens.";
@@ -636,8 +696,13 @@
     });
   }
 
-  function startSecretPager() {
-    const pages = CONTENT.secretMessage && CONTENT.secretMessage.length
+  // Shown instead of the full secretMessage on any visit after the first.
+  const SECRET_REVISIT_PAGES = ["* there's no one here..."];
+
+  function startSecretPager(overridePages) {
+    const pages = overridePages
+      ? overridePages
+      : CONTENT.secretMessage && CONTENT.secretMessage.length
       ? CONTENT.secretMessage
       : ["* ... (Add secretMessage lines in content.js.)"];
 
@@ -660,6 +725,7 @@
       "click",
       async () => {
         pager.destroyKeys();
+        markSecretSeen();
 
         // Replace the hidden-secret hint with your new line
         CONTENT.mainMessage[CONTENT.mainMessage.length - 1] =
