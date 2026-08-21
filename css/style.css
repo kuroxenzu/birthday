@@ -239,6 +239,7 @@ input{ font-family: inherit; }
 .hl-greeting{ color: var(--soul-red); }
 .hl-perseverant{ color: var(--lavender); }
 .hl-savepoint{ color: yellow; }
+.hl-notif{ font-style: italic; font-weight: normal; }
 
 .advance-indicator{
   position: absolute;
