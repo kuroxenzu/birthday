@@ -44,9 +44,7 @@ window.CARD_CONTENT = {
     
     "* I hope this trip around the sun is loud where you want it loud, quiet where you need it quiet, and kind to you the way you're kind to everyone else.",
 
-    "* Stay perseverant. Stay exactly, stubbornly, wonderfully you.",
-
-    "* (...also, I left something hidden further down, if you're curious. You know how to find secrets.)"
+    "* Stay perseverant. Stay exactly, stubbornly, wonderfully you."
   ],
 
   // The word that unlocks the secret dialogue. Not case sensitive.
@@ -57,12 +55,35 @@ window.CARD_CONTENT = {
 
   // Revealed once the correct word is entered. Same paging behavior as mainMessage.
   secretMessage: [
-    "* You found it.",
-    "* This is the part underneath the part. The thing I mean even on the days I don't say it.",
-    "* [ Replace this line in content.js with the real, private thing you want to say. ]",
-    "* Happy birthday. I mean it more than pixels can really show.",
-    "* ...",
-    "* Stay perseverant. <3"
+    "* You've finally found me.",
+    "* If you're reading this, then today is not just another birthday.",
+    "* Today marks the moment when something ancient passes from one soul to another.",
+    "* Long ago, I carried the Soul of Perseverance.",
+    "* It was not a power that made me fearless. It was the power that taught me to keep moving even when I was afraid.",
+    "* To stand again after falling. To take one more step when the path ahead seemed impossible.",
+    "* And now, that power belongs to you.",
+    "* You may wonder if you're worthy of it.",
+    "* You may face days when you feel lost, tired, or convinced that you've reached the end of your strength.",
+    "* When that happens, remember this:",
+    "* Perseverance does not mean you never fall.\n* It means you choose to rise again.",
+    "* You don't have to be the strongest. You don't have to know every answer. You only have to take the next step.",
+    "* There will be moments when the world tells you to give up. There will be battles you cannot win by force, and paths that seem to have no ending.",
+    "* But you have something greater than strength.",
+    "* You have the determination to try again.",
+    "* So take this Soul, not as a burden, but as a promise.",
+    "* A promise that no matter how many times you fall, your story does not end there.",
+    "* Your journey is yours to write.",
+    "* And if someday you find yourself standing where I once stood, wondering whether you can continue...",
+    "* Remember that someone believed you could.",
+    "* I did.",
+    "* Happy Birthday, heir of Perseverance.",
+    "* Your turn begins now.",
+    "* Don't give up.\n* Not today.\n* Not tomorrow.\n* Not ever.",
+    "The Ancient Soul of Perseverance has been added to your inventory.",
+    "You feel a strange warmth in your chest.",
+    "It feels familiar.",
+    "It feels like perseverance.",
+    "* Stay perseverant, young one..."
   ],
 
   // Background music. Drop matching .mp3 files into /music — the
